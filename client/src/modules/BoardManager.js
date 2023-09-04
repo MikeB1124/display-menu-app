@@ -17,9 +17,71 @@ import Switch from '@mui/material/Switch';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 
+function SwitchButton(props) {
+  const {item} = props
+  const [switchOpen, setSwitchOpen] = useState(item.active)
+
+  function toggleSwitch() {
+    fetch(`/api/menuItems/active/${item["_id"]}/${!switchOpen}`, {
+      method: "PATCH",
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      setSwitchOpen(!switchOpen)
+    })
+    .catch(error => console.error(error));
+  }
+  return (
+    <>
+      <Switch checked={switchOpen} onClick={toggleSwitch}/>
+    </>
+  )
+}
+
+function RemoveButton(props) {
+  const {deletedItem, items, setItems} = props
+
+  function removeItem() {
+    fetch(`/api/menuItems/remove/${deletedItem["_id"]}`, {
+      method: "PATCH",
+    })
+    .then(response => response.json())
+    .then(data => {
+      let filterItems = []
+      filterItems = items.filter(item => item["_id"] != deletedItem["_id"])
+      setItems(filterItems)
+    })
+    .catch(error => console.error(error));
+  }
+  return (
+    <>
+      <Button variant='contained' color="error" onClick={removeItem}>Delete</Button>
+    </>
+  )
+}
+
 function Row(props) {
-    const { row, deleteBoard } = props;
+    const { row, boards, setBoards, updateBoards } = props;
     const [open, setOpen] = useState(false);
+    const [items, setItems] = useState([])
+
+    useEffect(() => {
+      setItems(row.items)
+    }, [])
+
+    function deleteBoard(id){
+      fetch(`/api/boards/${id}`, {
+        method: "DELETE",
+      })
+      .then(response => response.json())
+      .then(data => {
+        let filterBoards = []
+        filterBoards = boards.filter(board => board["_id"] != id)
+        setBoards(filterBoards)
+      })
+      .catch(error => console.error(error));
+    }
   
     return (
       <>
@@ -44,11 +106,12 @@ function Row(props) {
             <Collapse in={open} timeout="auto" unmountOnExit>
               <Box sx={{ margin: 1 }}>
                 {
-                  row.items.map((item, i) => (
-                    <div style={{"display": "flex", "gap": "32px"}} key={i}>
+                  items.map((item, i) => (
+                    <div style={{"display": "flex", "gap": "32px", "marginBottom": "8px"}} key={i}>
                       <Typography variant="h6">{item.name}</Typography> 
                       <Typography variant="h6">${item.price}</Typography> 
-                      <Switch checked={item.active ? true : false}/>
+                      <SwitchButton item={item}/>
+                      <RemoveButton deletedItem={item} items={items}  setItems={setItems}/>
                     </div>
                   ))
                 }
@@ -102,17 +165,8 @@ function BoardManager() {
     .catch(error => console.error(error));
   }
 
-  function deleteBoard(id){
-    fetch(`/api/boards/${id}`, {
-      method: "DELETE",
-    })
-    .then(response => response.json())
-    .then(data => {
-      let filterBoards = []
-      filterBoards = boards.filter(board => board["_id"] != id)
-      setBoards(filterBoards)
-    })
-    .catch(error => console.error(error));
+  function updateBoards(){
+    console.log("hello")
   }
 
   return (
@@ -122,19 +176,19 @@ function BoardManager() {
           <Button variant="contained" onClick={() => setCreateBoard(!createBoard)}>Create Board</Button>
           <Button variant="contained">Add Item</Button>
         </div>
-        <div style={tableContainer}>
-          <TableContainer component={Paper} style={{"width": "800px"}}>
-              <Table>
-                  <TableBody>
-                      {
-                        boards.map((board, i) => (
-                          <Row row={board} deleteBoard={deleteBoard} key={i}/>
-                        ))
-                      }
-                  </TableBody>
-              </Table>
-          </TableContainer>
-        </div>
+          <div style={tableContainer}>
+            <TableContainer component={Paper} style={{"width": "800px"}}>
+                <Table>
+                    <TableBody>
+                        {
+                          boards.map((board, i) => (
+                            <Row row={board} boards={boards} setBoards={setBoards} key={i}/>
+                          ))
+                        }
+                    </TableBody>
+                </Table>
+            </TableContainer>
+          </div> : <div></div>
         <Modal
           open={createBoard}
           onClose={() => setCreateBoard(!createBoard)}
