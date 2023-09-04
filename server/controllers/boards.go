@@ -6,6 +6,7 @@ import (
 	"github.com/MikeB1124/display-menu-app/server/db"
 	"github.com/MikeB1124/display-menu-app/server/structs"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func CreateMenuBoard(c *gin.Context) {
@@ -14,6 +15,7 @@ func CreateMenuBoard(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
+	newBoard.Id = primitive.NewObjectID()
 	result, err := db.DBInsertBoard(&newBoard)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})

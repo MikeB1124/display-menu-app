@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 
 function Home() {
@@ -15,9 +16,9 @@ function Home() {
         </div>
     );
 }
-  
+
 export default Home;
-  
+
 const header = {
     "textAlign": "center"
 }
