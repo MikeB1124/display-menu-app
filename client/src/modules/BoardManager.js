@@ -16,13 +16,69 @@ import { Button } from '@mui/material';
 import Switch from '@mui/material/Switch';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
 
+function BasicSelect(props) {
+  const {boards, selectedBoard, setSelectedBoard} = props
+
+  const handleChange = (event) => {
+    setSelectedBoard(event.target.value);
+  };
+
+  return (
+    <Box sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+        <InputLabel>Select Board</InputLabel>
+        <Select
+          value={selectedBoard}
+          label="Board"
+          onChange={handleChange}
+        >
+          {
+            boards.map((board, i) => (
+              <MenuItem key={i} value={board}>{board.displayName}</MenuItem>
+            ))
+          }
+        </Select>
+      </FormControl>
+    </Box>
+  );
+}
 
 function AddItemModal(props) {
-  const {boards, setBoards, addItemModal, setAddItemModal} = props
+  const {board, addItemModal, setAddItemModal, items, setItems} = props
   const [displayNameInput, setDisplayNameInput] = useState("")
+  const [descriptionInput, setDescriptionInput] = useState("")
+  const [price, setPrice] = useState("")
+  const [imageUrlInput, setImageUrlInput] = useState("")
 
   function addNewItem(){
+    let newItem = {
+      "name": displayNameInput,
+      "description": descriptionInput,
+      "price": price,
+      "imageURL": imageUrlInput,
+      "active": true
+    }
+    fetch(`/api/menuItems/${board["_id"]}`, {
+      method: "PATCH",
+      body: JSON.stringify(newItem)
+    })
+    .then(response => response.json())
+    .then(data => {
+      newItem["_id"] = data.id
+      let updateArray = []
+      items.map(item => {
+        updateArray.push(item)
+      })
+      updateArray.push(newItem)
+      setItems(updateArray)
+      setAddItemModal(false)
+    })
+    .catch(error => console.error(error));
   }
 
   return(
@@ -31,10 +87,13 @@ function AddItemModal(props) {
       onClose={() => setAddItemModal(!addItemModal)}
     >
       <Box sx={modalStyle}>
-        <Typography variant="h6" component="h2">
-          Add Item
+        <Typography variant="h6" component="h2" textAlign={"center"}>
+          Add Item to {board.displayName}
         </Typography>
-        <TextField label="Display Name" variant="outlined" onChange={(e) => setDisplayNameInput(e.target.value)}/>
+        <TextField label="Item Name" variant="outlined" onChange={(e) => setDisplayNameInput(e.target.value)}/>
+        <TextField label="Description" variant="outlined" onChange={(e) => setDescriptionInput(e.target.value)}/>
+        <TextField label="Price" variant="outlined" onChange={(e) => setPrice(e.target.value)}/>
+        <TextField label="Image URL" variant="outlined" onChange={(e) => setImageUrlInput(e.target.value)}/>
         <Button variant="contained" onClick={addNewItem}>Add Item</Button>
       </Box>
     </Modal>
@@ -127,9 +186,10 @@ function RemoveButton(props) {
 }
 
 function Row(props) {
-    const { row, boards, setBoards, updateBoards } = props;
+    const { row, boards, setBoards } = props;
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState([])
+    const [addItemModal, setAddItemModal] = useState(false)
 
     useEffect(() => {
       setItems(row.items)
@@ -163,6 +223,7 @@ function Row(props) {
                 {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               </IconButton>
               <h3>{row.displayName}</h3>
+              <Button variant="contained" onClick={() => setAddItemModal(!addItemModal)}>Add Item</Button>
             </div>
           </TableCell>
         </TableRow>
@@ -184,6 +245,13 @@ function Row(props) {
             </Collapse>
           </TableCell>
         </TableRow>
+        <AddItemModal 
+          board={row}
+          items={items}
+          setItems={setItems}
+          addItemModal={addItemModal} 
+          setAddItemModal={setAddItemModal}
+        />
       </>
     );
 }
@@ -193,7 +261,6 @@ function Row(props) {
 function BoardManager() {
   const [boards, setBoards] = useState([])
   const [createBoardModal, setCreateBoardModal] = useState(false)
-  const [addItemModal, setAddItemModal] = useState(false)
 
   //Get boards
   useEffect(() => {
@@ -216,7 +283,6 @@ function BoardManager() {
         <h1 style={headerStyle}>Boards</h1>
         <div style={buttonGroup}>
           <Button variant="contained" onClick={() => setCreateBoardModal(!createBoardModal)}>Create Board</Button>
-          <Button variant="contained" onClick={() => setAddItemModal(!addItemModal)}>Add Item</Button>
         </div>
         <div style={tableContainer}>
           <TableContainer component={Paper} style={{"width": "800px"}}>
@@ -236,12 +302,6 @@ function BoardManager() {
           setBoards={setBoards} 
           createBoardModal={createBoardModal} 
           setCreateBoardModal={setCreateBoardModal}
-        />
-        <AddItemModal 
-          boards={boards} 
-          setBoards={setBoards} 
-          addItemModal={addItemModal} 
-          setAddItemModal={setAddItemModal}
         />
       </div>
   );

@@ -23,12 +23,12 @@ func AddItemToBoard(c *gin.Context) {
 		return
 	}
 	newItem.Id = primitive.NewObjectID()
-	result, err := db.DBAddItemToBoard(id, newItem)
+	_, err := db.DBAddItemToBoard(id, newItem)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"result": result})
+	c.JSON(http.StatusOK, gin.H{"id": newItem.Id})
 }
 
 func DeleteItemFromBoard(c *gin.Context) {
