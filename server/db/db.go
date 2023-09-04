@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/MikeB1124/display-menu-app/server/structs"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,8 +16,12 @@ var dbClient *mongo.Client
 var dbCollection *mongo.Collection
 
 func Init() {
+	dbConnectionStr := os.Getenv("DB_CONNECTION")
+	if dbConnectionStr == "" {
+		dbConnectionStr = "mongodb://localhost:27017"
+	}
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI(dbConnectionStr)
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
@@ -32,7 +37,7 @@ func Init() {
 		log.Fatal(err)
 	}
 	dbClient = client
-	dbCollection = dbClient.Database("local").Collection("Boards")
+	dbCollection = dbClient.Database("trimanaDB").Collection("Boards")
 }
 
 func DBConnection() *mongo.Client {
