@@ -7,6 +7,7 @@ import (
 
 	"github.com/MikeB1124/display-menu-app/server/controllers"
 	"github.com/MikeB1124/display-menu-app/server/db"
+	"github.com/MikeB1124/display-menu-app/server/socket"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
@@ -37,6 +38,8 @@ func main() {
 	// Setup route group for the API
 	api := router.Group("/api")
 	{
+		api.GET("/ws", socket.WebSocketConnection)
+
 		boards := api.Group("/boards")
 		boards.GET("/", controllers.GetAllBoards)
 		boards.POST("/", controllers.CreateMenuBoard)

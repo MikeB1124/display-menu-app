@@ -1,36 +1,14 @@
 import { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { Button } from '@mui/material';
-import Switch from '@mui/material/Switch';
-import Modal from '@mui/material/Modal';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CardContent from '@mui/material/CardContent';
 import ImageListItem from '@mui/material/ImageListItem';
-import ImageListItemBar from '@mui/material/ImageListItemBar';
 
 
 
 function Card(props){
     const {item} = props
-    console.log(item)
     return(
         <>
             <div style={{"display": "flex", "alignItems": "center", "marginBottom": "62px"}}>
@@ -79,7 +57,7 @@ function Items(props){
 function Board() {
     const [boards, setBoards] = useState([])
     const [createdBoards, setCreatedBoards] = useState([])
-    const [slideIndex, setSlideIndex] = useState(0)
+    const [slideIndex, setSlideIndex] = useState(window.localStorage.getItem("BOARD_INDEX") || 0)
 
     //Get boards
     useEffect(() => {
@@ -94,6 +72,27 @@ function Board() {
         })
         .catch(error => console.error(error));
     }, [])
+
+    useEffect(() => {
+        const environment = process.env.NODE_ENV || 'development';
+        console.log(environment)
+        const ws = new WebSocket('ws://localhost:8080/api/ws');
+
+        ws.onmessage = (event) => {
+            const message = event.data;
+            // Handle the incoming message from the server
+            console.log('Received:', message);
+        };
+
+        return () => {
+            // Clean up WebSocket connection on unmount if needed
+            ws.close();
+        };
+    }, [])
+
+    useEffect(() => {
+        window.localStorage.setItem("BOARD_INDEX", slideIndex)
+    }, [slideIndex])
 
     function increaseIndex(){
         if(slideIndex < boards.length - 1){

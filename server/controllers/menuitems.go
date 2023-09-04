@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/MikeB1124/display-menu-app/server/db"
+	"github.com/MikeB1124/display-menu-app/server/socket"
 	"github.com/MikeB1124/display-menu-app/server/structs"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -62,6 +63,11 @@ func ActiveMenuItem(c *gin.Context) {
 
 	result, err := db.DBUpdateActiveItemStatus(itemId, activeBool)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	if err := socket.EndpointTriggerAlert(itemId + " status has been changed to " + active); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
