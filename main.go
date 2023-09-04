@@ -1,17 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 
+	"github.com/MikeB1124/display-menu-app/server/controllers"
+	"github.com/MikeB1124/display-menu-app/server/db"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	db.Init()
 	port := os.Getenv("PORT")
 	staticFiles := "./client/build"
 	if port == "" {
@@ -36,19 +37,15 @@ func main() {
 	// Setup route group for the API
 	api := router.Group("/api")
 	{
-		api.GET("/", func(c *gin.Context) {
-			entries, err := os.ReadDir("./client")
-			if err != nil {
-				log.Fatal(err)
-			}
+		boards := api.Group("/boards")
+		boards.GET("/", controllers.GetAllBoards)
+		boards.POST("/", controllers.CreateMenuBoard)
+		boards.DELETE("/:id", controllers.DeleteBoardByID)
 
-			for _, e := range entries {
-				fmt.Println(e.Name())
-			}
-			c.JSON(http.StatusOK, gin.H{
-				"message": "pong",
-			})
-		})
+		menuItems := api.Group("/menuItems")
+		menuItems.PATCH("/:boardId", controllers.AddItemToBoard)
+		menuItems.PATCH("/remove/:itemId", controllers.DeleteItemFromBoard)
+		menuItems.PATCH("/active/:itemId/:active", controllers.ActiveMenuItem)
 	}
 
 	// Start and run the server
