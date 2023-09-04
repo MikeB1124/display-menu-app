@@ -117,8 +117,8 @@ func DBDeleteItemFromBoard(itemId string) (*mongo.UpdateResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	filter := bson.D{{Key: "items.id", Value: itemIdPrim}}
-	update := bson.D{{Key: "$pull", Value: bson.D{{Key: "items", Value: bson.D{{Key: "id", Value: itemIdPrim}}}}}}
+	filter := bson.D{{Key: "items._id", Value: itemIdPrim}}
+	update := bson.D{{Key: "$pull", Value: bson.D{{Key: "items", Value: bson.D{{Key: "_id", Value: itemIdPrim}}}}}}
 	result, err := dbCollection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
 		return nil, err
@@ -131,7 +131,7 @@ func DBUpdateActiveItemStatus(itemId string, active bool) (*mongo.UpdateResult, 
 	if err != nil {
 		return nil, err
 	}
-	filter := bson.D{{Key: "items.id", Value: itemIdPrim}}
+	filter := bson.D{{Key: "items._id", Value: itemIdPrim}}
 	update := bson.D{{Key: "$set", Value: bson.D{{Key: "items.$.active", Value: active}}}}
 	result, err := dbCollection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {

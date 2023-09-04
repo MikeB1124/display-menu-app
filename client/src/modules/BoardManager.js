@@ -17,6 +17,71 @@ import Switch from '@mui/material/Switch';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 
+
+function AddItemModal(props) {
+  const {boards, setBoards, addItemModal, setAddItemModal} = props
+  const [displayNameInput, setDisplayNameInput] = useState("")
+
+  function addNewItem(){
+  }
+
+  return(
+    <Modal
+      open={addItemModal}
+      onClose={() => setAddItemModal(!addItemModal)}
+    >
+      <Box sx={modalStyle}>
+        <Typography variant="h6" component="h2">
+          Add Item
+        </Typography>
+        <TextField label="Display Name" variant="outlined" onChange={(e) => setDisplayNameInput(e.target.value)}/>
+        <Button variant="contained" onClick={addNewItem}>Add Item</Button>
+      </Box>
+    </Modal>
+  )
+}
+
+
+
+function CreateBoardModal(props) {
+  const {boards, setBoards, createBoardModal, setCreateBoardModal} = props
+  const [displayNameInput, setDisplayNameInput] = useState("")
+
+  function createNewBoard(){
+    let newBoard = {
+      "displayName": displayNameInput,
+      "items": []
+    }
+    fetch('/api/boards', {
+      method: "POST",
+      body: JSON.stringify(newBoard)
+    })
+    .then(response => response.json())
+    .then(data => {
+      newBoard["_id"] = data.id
+      boards.push(newBoard)
+      setBoards(boards)
+      setCreateBoardModal(false)
+    })
+    .catch(error => console.error(error));
+  }
+
+  return(
+    <Modal
+      open={createBoardModal}
+      onClose={() => setCreateBoardModal(!createBoardModal)}
+    >
+      <Box sx={modalStyle}>
+        <Typography variant="h6" component="h2">
+          New Board
+        </Typography>
+        <TextField label="Display Name" variant="outlined" onChange={(e) => setDisplayNameInput(e.target.value)}/>
+        <Button variant="contained" onClick={createNewBoard}>Create</Button>
+      </Box>
+    </Modal>
+  )
+}
+
 function SwitchButton(props) {
   const {item} = props
   const [switchOpen, setSwitchOpen] = useState(item.active)
@@ -127,8 +192,8 @@ function Row(props) {
 
 function BoardManager() {
   const [boards, setBoards] = useState([])
-  const [createBoard, setCreateBoard] = useState(false)
-  const [displayNameInput, setDisplayNameInput] = useState("")
+  const [createBoardModal, setCreateBoardModal] = useState(false)
+  const [addItemModal, setAddItemModal] = useState(false)
 
   //Get boards
   useEffect(() => {
@@ -145,62 +210,39 @@ function BoardManager() {
     .catch(error => console.error(error));
   }, [])
 
-  //Create new board
-  function createNewBoard(){
-    let newBoard = {
-      "displayName": displayNameInput,
-      "items": []
-    }
-    fetch('/api/boards', {
-      method: "POST",
-      body: JSON.stringify(newBoard)
-    })
-    .then(response => response.json())
-    .then(data => {
-      newBoard["_id"] = data.id
-      boards.push(newBoard)
-      setBoards(boards)
-      setCreateBoard(false)
-    })
-    .catch(error => console.error(error));
-  }
-
-  function updateBoards(){
-    console.log("hello")
-  }
 
   return (
       <div style={{"backgroundColor": "#bbbbbb", "height": "100vh"}}>
         <h1 style={headerStyle}>Boards</h1>
         <div style={buttonGroup}>
-          <Button variant="contained" onClick={() => setCreateBoard(!createBoard)}>Create Board</Button>
-          <Button variant="contained">Add Item</Button>
+          <Button variant="contained" onClick={() => setCreateBoardModal(!createBoardModal)}>Create Board</Button>
+          <Button variant="contained" onClick={() => setAddItemModal(!addItemModal)}>Add Item</Button>
         </div>
-          <div style={tableContainer}>
-            <TableContainer component={Paper} style={{"width": "800px"}}>
-                <Table>
-                    <TableBody>
-                        {
-                          boards.map((board, i) => (
-                            <Row row={board} boards={boards} setBoards={setBoards} key={i}/>
-                          ))
-                        }
-                    </TableBody>
-                </Table>
-            </TableContainer>
-          </div> : <div></div>
-        <Modal
-          open={createBoard}
-          onClose={() => setCreateBoard(!createBoard)}
-        >
-          <Box sx={modalStyle}>
-            <Typography variant="h6" component="h2">
-              New Board
-            </Typography>
-            <TextField label="Display Name" variant="outlined" onChange={(e) => setDisplayNameInput(e.target.value)}/>
-            <Button variant="contained" onClick={createNewBoard}>Create</Button>
-          </Box>
-        </Modal>
+        <div style={tableContainer}>
+          <TableContainer component={Paper} style={{"width": "800px"}}>
+              <Table>
+                  <TableBody>
+                      {
+                        boards.map((board, i) => (
+                          <Row row={board} boards={boards} setBoards={setBoards} key={i}/>
+                        ))
+                      }
+                  </TableBody>
+              </Table>
+          </TableContainer>
+        </div>
+        <CreateBoardModal 
+          boards={boards} 
+          setBoards={setBoards} 
+          createBoardModal={createBoardModal} 
+          setCreateBoardModal={setCreateBoardModal}
+        />
+        <AddItemModal 
+          boards={boards} 
+          setBoards={setBoards} 
+          addItemModal={addItemModal} 
+          setAddItemModal={setAddItemModal}
+        />
       </div>
   );
 }
