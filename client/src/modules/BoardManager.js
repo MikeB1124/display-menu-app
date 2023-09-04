@@ -16,37 +16,6 @@ import { Button } from '@mui/material';
 import Switch from '@mui/material/Switch';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-
-function BasicSelect(props) {
-  const {boards, selectedBoard, setSelectedBoard} = props
-
-  const handleChange = (event) => {
-    setSelectedBoard(event.target.value);
-  };
-
-  return (
-    <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth>
-        <InputLabel>Select Board</InputLabel>
-        <Select
-          value={selectedBoard}
-          label="Board"
-          onChange={handleChange}
-        >
-          {
-            boards.map((board, i) => (
-              <MenuItem key={i} value={board}>{board.displayName}</MenuItem>
-            ))
-          }
-        </Select>
-      </FormControl>
-    </Box>
-  );
-}
 
 function AddItemModal(props) {
   const {board, addItemModal, setAddItemModal, items, setItems} = props
