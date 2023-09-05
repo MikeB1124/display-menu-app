@@ -77,7 +77,7 @@ function Board() {
         const environment = process.env.NODE_ENV || 'development';
         let websocketUrl = "ws://localhost:8080"
         if(environment == "production"){
-            websocketUrl = `ws://localhost:${window.location.port}`
+            websocketUrl = `wss://${window.location.hostname}:${window.location.port}`
         }
         
         const ws = new WebSocket(`${websocketUrl}/api/ws`);
