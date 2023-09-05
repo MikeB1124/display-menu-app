@@ -77,7 +77,7 @@ function Board() {
         const environment = process.env.NODE_ENV || 'development';
         let hostname = "localhost:8080"
         if(environment == "production"){
-            hostname = "https://display-menu-app-0416ebc9a080.herokuapp.com"
+            hostname = "display-menu-app-0416ebc9a080.herokuapp.com"
         }
         
         const ws = new WebSocket(`ws://${hostname}/api/ws`);
