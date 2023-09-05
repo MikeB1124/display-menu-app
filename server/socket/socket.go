@@ -30,7 +30,7 @@ func WebSocketConnection(c *gin.Context) {
 	go func() {
 		for {
 			select {
-			case <-time.After(60 * time.Second): // Send a heartbeat every minute
+			case <-time.After(30 * time.Second): // Send a heartbeat every minute
 				err := conn.WriteMessage(websocket.TextMessage, []byte("heartbeat"))
 				if err != nil {
 					delete(SocketClients, conn) // Remove the disconnected client

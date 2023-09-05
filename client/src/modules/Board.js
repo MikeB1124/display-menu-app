@@ -85,8 +85,9 @@ function Board() {
         ws.onmessage = (event) => {
             const message = event.data;
             // Handle the incoming message from the server
-            console.log('Received:', message);
-            // window.location.reload(false)
+            if(message != "hearbeat"){
+                window.location.reload(false)
+            }
         };
 
         return () => {
