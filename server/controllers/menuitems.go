@@ -29,6 +29,10 @@ func AddItemToBoard(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
+	if err := socket.EndpointTriggerAlert("Socket-AddItemToBoard"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"id": newItem.Id})
 }
 
@@ -41,6 +45,10 @@ func DeleteItemFromBoard(c *gin.Context) {
 
 	result, err := db.DBDeleteItemFromBoard(itemId)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	if err := socket.EndpointTriggerAlert("Socket-DeleteItemFromBoard-itemId:" + itemId); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
@@ -67,7 +75,7 @@ func ActiveMenuItem(c *gin.Context) {
 		return
 	}
 
-	if err := socket.EndpointTriggerAlert(itemId + " status has been changed to " + active); err != nil {
+	if err := socket.EndpointTriggerAlert("Socket-ActiveMenuItem-itemId:" + itemId); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}

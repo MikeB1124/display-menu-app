@@ -75,13 +75,18 @@ function Board() {
 
     useEffect(() => {
         const environment = process.env.NODE_ENV || 'development';
-        console.log(environment)
-        const ws = new WebSocket('ws://localhost:8080/api/ws');
+        let hostname = "localhost:8080"
+        if(environment == "production"){
+            hostname = "https://display-menu-app-0416ebc9a080.herokuapp.com"
+        }
+        
+        const ws = new WebSocket(`ws://${hostname}/api/ws`);
 
         ws.onmessage = (event) => {
             const message = event.data;
             // Handle the incoming message from the server
             console.log('Received:', message);
+            window.location.reload(false)
         };
 
         return () => {

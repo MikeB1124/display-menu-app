@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/MikeB1124/display-menu-app/server/db"
+	"github.com/MikeB1124/display-menu-app/server/socket"
 	"github.com/MikeB1124/display-menu-app/server/structs"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,6 +19,10 @@ func CreateMenuBoard(c *gin.Context) {
 	newBoard.Id = primitive.NewObjectID()
 	result, err := db.DBInsertBoard(&newBoard)
 	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	if err := socket.EndpointTriggerAlert("Socket-CreateMenuBoard"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
@@ -47,6 +52,10 @@ func DeleteBoardByID(c *gin.Context) {
 
 	if int(deletedCount) == 0 {
 		c.JSON(http.StatusOK, gin.H{"result": "No matching documents to delete"})
+		return
+	}
+	if err := socket.EndpointTriggerAlert("Socket-DeleteBoardByID"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"result": deletedCount})
