@@ -80,7 +80,7 @@ function Board() {
             hostname = "display-menu-app-0416ebc9a080.herokuapp.com"
         }
         
-        const ws = new WebSocket(`ws://${hostname}/api/ws`);
+        const ws = new WebSocket(`ws://display-menu-app-0416ebc9a080.herokuapp.com/api/ws`);
 
         ws.onmessage = (event) => {
             const message = event.data;
