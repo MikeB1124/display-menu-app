@@ -2,6 +2,7 @@ package socket
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -25,6 +26,19 @@ func WebSocketConnection(c *gin.Context) {
 
 	// Add the new WebSocket connection to the clients map
 	SocketClients[conn] = true
+
+	go func() {
+		for {
+			select {
+			case <-time.After(60 * time.Second): // Send a heartbeat every minute
+				err := conn.WriteMessage(websocket.TextMessage, []byte("heartbeat"))
+				if err != nil {
+					delete(SocketClients, conn) // Remove the disconnected client
+					return
+				}
+			}
+		}
+	}()
 
 	for {
 		// Read messages from the client (if needed)

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -12,6 +14,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type PortConfiguration struct {
+	Port string `json:"port"`
+}
+
+func writePort(port string) {
+	configPort := PortConfiguration{
+		Port: port,
+	}
+	jsonData, err := json.Marshal(configPort)
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+		return
+	}
+
+	file, err := os.Create("portconfig.json")
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return
+	}
+	defer file.Close()
+
+	// Write the JSON-encoded data to the file.
+	_, err = file.Write(jsonData)
+	if err != nil {
+		fmt.Println("Error writing JSON to file:", err)
+		return
+	}
+}
+
 func main() {
 	db.Init()
 	port := os.Getenv("PORT")
@@ -19,6 +50,7 @@ func main() {
 	if port == "" {
 		port = "8080" // Default port if not specified
 	}
+	writePort(port)
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
 
