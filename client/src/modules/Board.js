@@ -86,7 +86,7 @@ function Board() {
             const message = event.data;
             // Handle the incoming message from the server
             console.log('Received:', message);
-            window.location.reload(false)
+            // window.location.reload(false)
         };
 
         return () => {
