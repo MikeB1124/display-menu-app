@@ -75,9 +75,9 @@ function Board() {
 
     useEffect(() => {
         const environment = process.env.NODE_ENV || 'development';
-        let websocketUrl = ""
-        if(environment == "development"){
-            websocketUrl = "ws://localhost:8080"
+        let websocketUrl = "ws://localhost:8080"
+        if(environment == "production"){
+            websocketUrl = `ws://${window.location.hostname}:${window.location.port}`
         }
         
         const ws = new WebSocket(`${websocketUrl}/api/ws`);
