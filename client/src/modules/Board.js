@@ -85,7 +85,7 @@ function Board() {
         ws.onmessage = (event) => {
             const message = event.data;
             // Handle the incoming message from the server
-            if(message != "hearbeat"){
+            if(message != "heartbeat"){
                 window.location.reload(false)
             }
         };
