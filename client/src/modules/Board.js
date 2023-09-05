@@ -75,12 +75,12 @@ function Board() {
 
     useEffect(() => {
         const environment = process.env.NODE_ENV || 'development';
-        let hostname = "localhost:8080"
-        if(environment == "production"){
-            hostname = "display-menu-app-0416ebc9a080.herokuapp.com"
+        let websocketUrl = ""
+        if(environment == "development"){
+            websocketUrl = "ws://localhost:8080"
         }
         
-        const ws = new WebSocket(`ws://${hostname}/api/ws`);
+        const ws = new WebSocket(`${websocketUrl}/api/ws`);
 
         ws.onmessage = (event) => {
             const message = event.data;
