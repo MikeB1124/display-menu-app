@@ -63,6 +63,9 @@ function Board() {
     useEffect(() => {
         fetch('/api/boards', {
             method: "GET",
+            headers:{
+                "Authorization": `Basic ${process.env.REACT_APP_AUTH_TOKEN}`
+            }
         })
         .then(response => response.json())
         .then(data => {

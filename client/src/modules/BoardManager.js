@@ -34,6 +34,9 @@ function AddItemModal(props) {
     }
     fetch(`/api/menuItems/${board["_id"]}`, {
       method: "PATCH",
+      headers:{
+        "Authorization": `Basic ${process.env.REACT_APP_AUTH_TOKEN}`
+      },
       body: JSON.stringify(newItem)
     })
     .then(response => response.json())
@@ -82,6 +85,9 @@ function CreateBoardModal(props) {
     }
     fetch('/api/boards', {
       method: "POST",
+      headers:{
+        "Authorization": `Basic ${process.env.REACT_APP_AUTH_TOKEN}`
+      },
       body: JSON.stringify(newBoard)
     })
     .then(response => response.json())
@@ -117,6 +123,9 @@ function SwitchButton(props) {
   function toggleSwitch() {
     fetch(`/api/menuItems/active/${item["_id"]}/${!switchOpen}`, {
       method: "PATCH",
+      headers:{
+        "Authorization": `Basic ${process.env.REACT_APP_AUTH_TOKEN}`
+      }
     })
     .then(response => response.json())
     .then(data => {
@@ -138,6 +147,9 @@ function RemoveButton(props) {
   function removeItem() {
     fetch(`/api/menuItems/remove/${deletedItem["_id"]}`, {
       method: "PATCH",
+      headers:{
+        "Authorization": `Basic ${process.env.REACT_APP_AUTH_TOKEN}`
+      }
     })
     .then(response => response.json())
     .then(data => {
@@ -167,6 +179,9 @@ function Row(props) {
     function deleteBoard(id){
       fetch(`/api/boards/${id}`, {
         method: "DELETE",
+        headers:{
+          "Authorization": `Basic ${process.env.REACT_APP_AUTH_TOKEN}`
+        }
       })
       .then(response => response.json())
       .then(data => {
@@ -235,6 +250,9 @@ function BoardManager() {
   useEffect(() => {
     fetch('/api/boards', {
         method: "GET",
+        headers:{
+          "Authorization": `Basic ${process.env.REACT_APP_AUTH_TOKEN}`
+        }
     })
     .then(response => response.json())
     .then(data => {

@@ -1,12 +1,11 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
 
+	"github.com/MikeB1124/display-menu-app/server/configuration"
 	"github.com/MikeB1124/display-menu-app/server/controllers"
 	"github.com/MikeB1124/display-menu-app/server/db"
 	"github.com/MikeB1124/display-menu-app/server/socket"
@@ -14,43 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type PortConfiguration struct {
-	Port string `json:"port"`
-}
-
-func writePort(port string) {
-	configPort := PortConfiguration{
-		Port: port,
-	}
-	jsonData, err := json.Marshal(configPort)
-	if err != nil {
-		fmt.Println("Error marshaling JSON:", err)
-		return
-	}
-
-	file, err := os.Create("portconfig.json")
-	if err != nil {
-		fmt.Println("Error creating file:", err)
-		return
-	}
-	defer file.Close()
-
-	// Write the JSON-encoded data to the file.
-	_, err = file.Write(jsonData)
-	if err != nil {
-		fmt.Println("Error writing JSON to file:", err)
-		return
-	}
-}
-
 func main() {
 	db.Init()
+	configuration.Init()
 	port := os.Getenv("PORT")
 	staticFiles := "./client/build"
 	if port == "" {
 		port = "8080" // Default port if not specified
 	}
-	writePort(port)
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
 
@@ -72,12 +42,12 @@ func main() {
 	{
 		api.GET("/ws", socket.WebSocketConnection)
 
-		boards := api.Group("/boards")
+		boards := api.Group("/boards", controllers.BasicAuthMiddleware)
 		boards.GET("/", controllers.GetAllBoards)
 		boards.POST("/", controllers.CreateMenuBoard)
 		boards.DELETE("/:id", controllers.DeleteBoardByID)
 
-		menuItems := api.Group("/menuItems")
+		menuItems := api.Group("/menuItems", controllers.BasicAuthMiddleware)
 		menuItems.PATCH("/:boardId", controllers.AddItemToBoard)
 		menuItems.PATCH("/remove/:itemId", controllers.DeleteItemFromBoard)
 		menuItems.PATCH("/active/:itemId/:active", controllers.ActiveMenuItem)
