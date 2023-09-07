@@ -7,3 +7,12 @@ import (
 func IsValidUser(u string, p string) bool {
 	return u == configuration.Config.Username && p == configuration.Config.Password
 }
+
+func WhiteListedIP(ip string) bool {
+	for _, WLip := range configuration.Config.WLIPs {
+		if ip == WLip {
+			return true
+		}
+	}
+	return false
+}

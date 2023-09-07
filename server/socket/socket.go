@@ -1,10 +1,10 @@
 package socket
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/MikeB1124/display-menu-app/server/authservice"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -18,39 +18,38 @@ var SocketUpgrader = websocket.Upgrader{
 var SocketClients = make(map[*websocket.Conn]bool)
 
 func WebSocketConnection(c *gin.Context) {
-	fmt.Println("lksjadlkjfklsjdlkfjslkjdflkjlks;f")
-	fmt.Println(c.ClientIP())
-	fmt.Println("jkshdkfhkjsadhfkjkslj")
-	conn, err := SocketUpgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-	defer conn.Close()
-
-	// Add the new WebSocket connection to the clients map
-	SocketClients[conn] = true
-
-	go func() {
-		for {
-			select {
-			case <-time.After(30 * time.Second): // Send a heartbeat every minute
-				err := conn.WriteMessage(websocket.TextMessage, []byte("heartbeat"))
-				if err != nil {
-					delete(SocketClients, conn) // Remove the disconnected client
-					return
-				}
-			}
-		}
-	}()
-
-	for {
-		// Read messages from the client (if needed)
-		_, _, err := conn.ReadMessage()
+	if authservice.WhiteListedIP(c.ClientIP()) {
+		conn, err := SocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
-			delete(SocketClients, conn) // Remove the disconnected client
 			c.JSON(http.StatusBadRequest, gin.H{"error": err})
 			return
+		}
+		defer conn.Close()
+
+		// Add the new WebSocket connection to the clients map
+		SocketClients[conn] = true
+
+		go func() {
+			for {
+				select {
+				case <-time.After(30 * time.Second): // Send a heartbeat every minute
+					err := conn.WriteMessage(websocket.TextMessage, []byte("heartbeat"))
+					if err != nil {
+						delete(SocketClients, conn) // Remove the disconnected client
+						return
+					}
+				}
+			}
+		}()
+
+		for {
+			// Read messages from the client (if needed)
+			_, _, err := conn.ReadMessage()
+			if err != nil {
+				delete(SocketClients, conn) // Remove the disconnected client
+				c.JSON(http.StatusBadRequest, gin.H{"error": err})
+				return
+			}
 		}
 	}
 }

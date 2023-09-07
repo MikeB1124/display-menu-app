@@ -9,8 +9,9 @@ import (
 )
 
 type Configuration struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Username string   `yaml:"username"`
+	Password string   `yaml:"password"`
+	WLIPs    []string `yaml:"wlips"`
 }
 
 var Config Configuration
@@ -18,6 +19,7 @@ var Config Configuration
 func Init() {
 	username := os.Getenv("SERVER_USERNAME")
 	password := os.Getenv("SERVER_PASSWORD")
+	wlips := []string{"23.243.244.219"}
 	if username == "" || password == "" {
 		yamlFile, err := ioutil.ReadFile("C:/Users/Stephen Balian/Desktop/2022-dev-projects/Golang/display-menu-app/config.yaml")
 
@@ -31,6 +33,7 @@ func Init() {
 	} else {
 		Config.Username = username
 		Config.Password = password
+		Config.WLIPs = wlips
 	}
 
 }
