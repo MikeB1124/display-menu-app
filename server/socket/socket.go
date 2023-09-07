@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -17,6 +18,9 @@ var SocketUpgrader = websocket.Upgrader{
 var SocketClients = make(map[*websocket.Conn]bool)
 
 func WebSocketConnection(c *gin.Context) {
+	fmt.Println("lksjadlkjfklsjdlkfjslkjdflkjlks;f")
+	fmt.Println(c.ClientIP())
+	fmt.Println("jkshdkfhkjsadhfkjkslj")
 	conn, err := SocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
