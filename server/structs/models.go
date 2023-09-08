@@ -16,3 +16,8 @@ type Item struct {
 	ImageURL    string             `json:"imageURL" bson:"imageURL"`
 	Active      bool               `json:"active" bson:"active"`
 }
+
+type UserAccount struct {
+	Username string `json:"username" bson:"username"`
+	Password string `json:"password" bson:"password"`
+}

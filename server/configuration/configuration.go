@@ -9,9 +9,10 @@ import (
 )
 
 type Configuration struct {
-	Username string   `yaml:"username"`
-	Password string   `yaml:"password"`
-	WLIPs    []string `yaml:"wlips"`
+	Username      string   `yaml:"username"`
+	Password      string   `yaml:"password"`
+	WLIPs         []string `yaml:"wlips"`
+	JWTSignSecret string   `yaml:"jwtsignsecret"`
 }
 
 var Config Configuration
@@ -19,6 +20,7 @@ var Config Configuration
 func Init() {
 	username := os.Getenv("SERVER_USERNAME")
 	password := os.Getenv("SERVER_PASSWORD")
+	jwt_sign_secret := os.Getenv("JWT_SIGN_SECRET")
 	wlips := []string{"23.243.244.219"}
 	if username == "" || password == "" {
 		yamlFile, err := ioutil.ReadFile("C:/Users/Stephen Balian/Desktop/2022-dev-projects/Golang/display-menu-app/config.yaml")
@@ -34,6 +36,7 @@ func Init() {
 		Config.Username = username
 		Config.Password = password
 		Config.WLIPs = wlips
+		Config.JWTSignSecret = jwt_sign_secret
 	}
 
 }

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/MikeB1124/display-menu-app/server/authservice"
+	"github.com/MikeB1124/display-menu-app/server/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -18,7 +18,7 @@ var SocketUpgrader = websocket.Upgrader{
 var SocketClients = make(map[*websocket.Conn]bool)
 
 func WebSocketConnection(c *gin.Context) {
-	if authservice.WhiteListedIP(c.ClientIP()) {
+	if utils.WhiteListedIP(c.ClientIP()) {
 		conn, err := SocketUpgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err})

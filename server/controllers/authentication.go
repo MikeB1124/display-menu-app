@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/MikeB1124/display-menu-app/server/authservice"
+	"github.com/MikeB1124/display-menu-app/server/db"
+	"github.com/MikeB1124/display-menu-app/server/structs"
+	"github.com/MikeB1124/display-menu-app/server/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,7 +51,7 @@ func BasicAuthMiddleware(c *gin.Context) {
 	password := credentials[1]
 
 	// Replace this with your actual username and password validation logic
-	if !authservice.IsValidUser(username, password) {
+	if !utils.IsValidUser(username, password) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		c.Abort()
 		return
@@ -57,4 +59,27 @@ func BasicAuthMiddleware(c *gin.Context) {
 
 	// If authentication is successful, continue to the next middleware or roIsValidUser(u string, p string)
 	c.Next()
+}
+
+func LoginAuthentication(c *gin.Context) {
+	var userAccount structs.UserAccount
+	if err := c.BindJSON(&userAccount); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	result, err := db.DBLoginAuthentication(&userAccount)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	if !result {
+		c.JSON(http.StatusUnauthorized, gin.H{"result": "Login Unauthorized"})
+		return
+	}
+	token, err := utils.GenerateJWTToken(userAccount.Username)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"result": "Login Authorized", "token": token})
 }

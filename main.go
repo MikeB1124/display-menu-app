@@ -51,6 +51,9 @@ func main() {
 		menuItems.PATCH("/:boardId", controllers.AddItemToBoard)
 		menuItems.PATCH("/remove/:itemId", controllers.DeleteItemFromBoard)
 		menuItems.PATCH("/active/:itemId/:active", controllers.ActiveMenuItem)
+
+		auth := api.Group("/auth", controllers.BasicAuthMiddleware)
+		auth.POST("/login", controllers.LoginAuthentication)
 	}
 
 	// Start and run the server

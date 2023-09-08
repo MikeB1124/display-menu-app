@@ -14,6 +14,7 @@ import (
 
 var dbClient *mongo.Client
 var dbCollection *mongo.Collection
+var dbCollectionAccounts *mongo.Collection
 
 func Init() {
 	dbConnectionStr := os.Getenv("DB_CONNECTION")
@@ -38,6 +39,7 @@ func Init() {
 	}
 	dbClient = client
 	dbCollection = dbClient.Database("trimanaDB").Collection("Boards")
+	dbCollectionAccounts = dbClient.Database("trimanaDB").Collection("Accounts")
 }
 
 func DBConnection() *mongo.Client {
@@ -138,4 +140,16 @@ func DBUpdateActiveItemStatus(itemId string, active bool) (*mongo.UpdateResult, 
 		return nil, err
 	}
 	return result, err
+}
+
+func DBLoginAuthentication(userAccount *structs.UserAccount) (bool, error) {
+	filter := bson.D{{Key: "username", Value: userAccount.Username}, {Key: "password", Value: userAccount.Password}}
+	result, err := dbCollectionAccounts.CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return false, err
+	}
+	if result > 0 {
+		return true, nil
+	}
+	return false, nil
 }
