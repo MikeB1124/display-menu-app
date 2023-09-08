@@ -5,7 +5,6 @@ import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import { Button, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import LoadingPage from './LoadingPage';
 import {useSignIn, useIsAuthenticated} from "react-auth-kit"
 
 function Login() {
